@@ -3,6 +3,7 @@ import SnapshotControl from "./components/SnapshotControl";
 import SystemStats from "./components/SystemStats";
 import AlertsCenter from "./components/AlertsCenter";
 import ProcessTableEnhanced from "./components/ProcessTableEnhanced";
+import { API_ENDPOINTS } from "./config/api";
 
 const SNAPSHOT_ERROR_MESSAGE = "Need at least 2 snapshots";
 
@@ -30,19 +31,19 @@ function App() {
   useEffect(() => {
     const fetchData = () => {
       // Fetch drift data
-      fetch("http://127.0.0.1:8000/drift")
+      fetch(API_ENDPOINTS.DRIFT)
         .then((res) => res.json())
         .then((data) => setDrift(data))
         .catch((err) => console.error("Error fetching drift:", err));
 
       // Fetch timeline
-      fetch("http://127.0.0.1:8000/timeline")
+      fetch(API_ENDPOINTS.TIMELINE)
         .then((res) => res.json())
         .then((data) => setTimeline(data))
         .catch((err) => console.error("Error fetching timeline:", err));
 
       // Fetch snapshot info
-      fetch("http://127.0.0.1:8000/snapshot-info")
+      fetch(API_ENDPOINTS.SNAPSHOT_INFO)
         .then((res) => res.json())
         .then((data) => {
           setSnapshotInfo(data);
@@ -51,19 +52,19 @@ function App() {
         .catch((err) => console.error("Error fetching snapshot info:", err));
 
       // Fetch alerts
-      fetch("http://127.0.0.1:8000/alerts")
+      fetch(API_ENDPOINTS.ALERTS)
         .then((res) => res.json())
         .then((data) => setAlerts(data))
         .catch((err) => console.error("Error fetching alerts:", err));
 
       // Fetch resource analysis
-      fetch("http://127.0.0.1:8000/resource-analysis")
+      fetch(API_ENDPOINTS.RESOURCE_ANALYSIS)
         .then((res) => res.json())
         .then((data) => setResourceAnalysis(data))
         .catch((err) => console.error("Error fetching resource analysis:", err));
 
       // Fetch current processes
-      fetch("http://127.0.0.1:8000/current-processes")
+      fetch(API_ENDPOINTS.CURRENT_PROCESSES)
         .then((res) => res.json())
         .then((data) => setProcesses(data))
         .catch((err) => console.error("Error fetching processes:", err));
@@ -75,13 +76,13 @@ function App() {
   }, []);
 
   const handleTriggerSnapshot = async () => {
-    const response = await fetch("http://127.0.0.1:8000/trigger-snapshot", {
+    const response = await fetch(API_ENDPOINTS.TRIGGER_SNAPSHOT, {
       method: "POST",
     });
     if (response.ok) {
       // Refresh data after snapshot
       setTimeout(() => {
-        fetch("http://127.0.0.1:8000/snapshot-info")
+        fetch(API_ENDPOINTS.SNAPSHOT_INFO)
           .then((res) => res.json())
           .then((data) => setSnapshotInfo(data));
       }, 1000);

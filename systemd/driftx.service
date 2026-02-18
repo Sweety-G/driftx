@@ -1,0 +1,26 @@
+[Unit]
+Description=DriftX - Lightweight Forensic Change Intelligence Dashboard
+After=network.target
+
+[Service]
+Type=simple
+User=driftx
+Group=driftx
+WorkingDirectory=/opt/driftx/backend
+Environment="PATH=/opt/driftx/venv/bin:/usr/local/bin:/usr/bin:/bin"
+ExecStart=/opt/driftx/venv/bin/python -m uvicorn main:app --host 127.0.0.1 --port 8000
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=driftx
+
+# Security settings
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/driftx/backend/snapshots
+
+[Install]
+WantedBy=multi-user.target
