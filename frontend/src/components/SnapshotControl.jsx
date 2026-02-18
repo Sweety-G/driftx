@@ -60,10 +60,12 @@ function SnapshotControl({ snapshotInfo, onTrigger }) {
 
 const styles = {
   container: {
-    background: "#0d1117",
-    padding: "20px",
-    borderRadius: "12px",
-    border: "1px solid #30363d",
+    background: "rgba(13, 17, 23, 0.6)",
+    padding: "24px",
+    borderRadius: "16px",
+    border: "1px solid rgba(48, 54, 61, 0.5)",
+    backdropFilter: "blur(20px)",
+    boxShadow: "0 8px 32px rgba(0, 0, 0, 0.3)",
   },
   title: {
     fontSize: "18px",
@@ -72,14 +74,14 @@ const styles = {
   },
   grid: {
     display: "grid",
-    gridTemplateColumns: "repeat(3, 1fr)",
+    gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
     gap: "15px",
     marginBottom: "20px",
   },
   stat: {
-    background: "#161b22",
-    padding: "12px",
-    borderRadius: "8px",
+    background: "rgba(22, 27, 34, 0.8)",
+    padding: "15px",
+    borderRadius: "12px",
     textAlign: "center",
   },
   label: {
@@ -94,14 +96,15 @@ const styles = {
   },
   button: {
     width: "100%",
-    padding: "12px",
+    padding: "14px",
     background: "linear-gradient(135deg, #00ff88, #00bfff)",
     border: "none",
-    borderRadius: "8px",
+    borderRadius: "12px",
     color: "#000",
-    fontSize: "14px",
-    fontWeight: "bold",
-    transition: "all 0.3s",
+    fontSize: "15px",
+    fontWeight: "700",
+    transition: "all 0.3s ease",
+    boxShadow: "0 4px 15px rgba(0, 255, 136, 0.3)",
   },
 };
 

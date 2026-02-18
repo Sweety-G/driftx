@@ -51,10 +51,12 @@ function SystemStats({ resourceAnalysis }) {
 
 const styles = {
   container: {
-    background: "#0d1117",
-    padding: "20px",
-    borderRadius: "12px",
-    border: "1px solid #30363d",
+    background: "rgba(13, 17, 23, 0.6)",
+    padding: "24px",
+    borderRadius: "16px",
+    border: "1px solid rgba(48, 54, 61, 0.5)",
+    backdropFilter: "blur(20px)",
+    boxShadow: "0 8px 32px rgba(0, 0, 0, 0.3)",
   },
   title: {
     fontSize: "18px",

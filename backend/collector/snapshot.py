@@ -4,7 +4,7 @@ import datetime
 import subprocess
 import psutil
 
-SNAPSHOT_FOLDER = "../snapshots"
+SNAPSHOT_FOLDER = "./snapshots"
 
 os.makedirs(SNAPSHOT_FOLDER, exist_ok=True)
 

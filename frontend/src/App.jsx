@@ -264,32 +264,37 @@ function App() {
 
 const styles = {
   page: {
-    background: "#0a0c10",
+    background: "linear-gradient(to bottom, #000000, #0a0c10)",
     minHeight: "100vh",
     color: "white",
-    padding: "25px",
-    fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif",
+    padding: "20px",
+    fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', 'Roboto', sans-serif",
     width: "100%",
     margin: "0",
+    boxSizing: "border-box",
   },
   header: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "flex-start",
-    marginBottom: "10px",
+    marginBottom: "20px",
+    flexWrap: "wrap",
+    gap: "15px",
   },
   logo: {
-    fontSize: "42px",
+    fontSize: "48px",
     color: "#00ff88",
-    textShadow: "0 0 20px rgba(0, 255, 136, 0.5)",
+    textShadow: "0 0 30px rgba(0, 255, 136, 0.6)",
     margin: 0,
-    fontWeight: "bold",
+    fontWeight: "700",
+    letterSpacing: "-1px",
   },
   timeDisplay: {
-    background: "#0d1117",
-    padding: "12px 20px",
-    borderRadius: "8px",
-    border: "1px solid #30363d",
+    background: "rgba(13, 17, 23, 0.8)",
+    padding: "15px 24px",
+    borderRadius: "12px",
+    border: "1px solid rgba(48, 54, 61, 0.5)",
+    backdropFilter: "blur(10px)",
   },
   timeLine: {
     display: "flex",
@@ -343,10 +348,12 @@ const styles = {
     marginTop: "20px",
   },
   panel: {
-    background: "#0d1117",
-    padding: "20px",
-    borderRadius: "12px",
-    border: "1px solid #30363d",
+    background: "rgba(13, 17, 23, 0.6)",
+    padding: "24px",
+    borderRadius: "16px",
+    border: "1px solid rgba(48, 54, 61, 0.5)",
+    backdropFilter: "blur(20px)",
+    boxShadow: "0 8px 32px rgba(0, 0, 0, 0.3)",
   },
   panelTitle: {
     fontSize: "18px",
@@ -375,15 +382,26 @@ function Card({ title, value, color }) {
   return (
     <div
       style={{
-        background: "#0d1117",
-        padding: "20px",
-        borderRadius: "10px",
-        border: `2px solid ${color}`,
-        transition: "transform 0.2s",
+        background: "rgba(13, 17, 23, 0.6)",
+        padding: "24px",
+        borderRadius: "16px",
+        border: `1px solid ${color}40`,
+        transition: "all 0.3s ease",
+        backdropFilter: "blur(20px)",
+        boxShadow: `0 0 20px ${color}20, 0 8px 32px rgba(0, 0, 0, 0.3)`,
+        cursor: "pointer",
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.transform = "translateY(-4px)";
+        e.currentTarget.style.boxShadow = `0 0 30px ${color}40, 0 12px 48px rgba(0, 0, 0, 0.4)`;
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = "translateY(0)";
+        e.currentTarget.style.boxShadow = `0 0 20px ${color}20, 0 8px 32px rgba(0, 0, 0, 0.3)`;
       }}
     >
-      <p style={{ color: "#8b949e", margin: "0 0 10px 0", fontSize: "13px" }}>{title}</p>
-      <h2 style={{ color, margin: 0, fontSize: "28px" }}>{value}</h2>
+      <p style={{ color: "#8b949e", margin: "0 0 12px 0", fontSize: "13px", fontWeight: "500", letterSpacing: "0.5px", textTransform: "uppercase" }}>{title}</p>
+      <h2 style={{ color, margin: 0, fontSize: "32px", fontWeight: "700" }}>{value}</h2>
     </div>
   );
 }
@@ -392,15 +410,16 @@ function Box({ title, color, children }) {
   return (
     <div
       style={{
-        background: "#161b22",
-        padding: "15px",
-        borderRadius: "10px",
+        background: "rgba(22, 27, 34, 0.8)",
+        padding: "18px",
+        borderRadius: "12px",
         marginTop: "15px",
-        border: `1px solid ${color}`,
+        border: `1px solid ${color}40`,
+        boxShadow: `0 0 15px ${color}15`,
       }}
     >
-      <h3 style={{ color, margin: "0 0 10px 0", fontSize: "16px" }}>{title}</h3>
-      <p style={{ color: "#c9d1d9", margin: 0, fontSize: "14px" }}>{children}</p>
+      <h3 style={{ color, margin: "0 0 12px 0", fontSize: "16px", fontWeight: "600" }}>{title}</h3>
+      <p style={{ color: "#c9d1d9", margin: 0, fontSize: "14px", lineHeight: "1.6" }}>{children}</p>
     </div>
   );
 }
