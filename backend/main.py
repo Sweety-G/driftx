@@ -1,11 +1,23 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from contextlib import asynccontextmanager
 import json
 import os
+from datetime import datetime, timezone
 from analyzer.process_monitor import ProcessMonitor
+from scheduler import init_scheduler, shutdown_scheduler, get_scheduler_info, create_snapshot
 
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup: Initialize scheduler
+    init_scheduler()
+    yield
+    # Shutdown: Clean up scheduler
+    shutdown_scheduler()
+
+
+app = FastAPI(lifespan=lifespan)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -149,3 +161,84 @@ def resource_analysis():
         analysis["risk_level"] = "LOW"
     
     return analysis
+
+
+@app.get("/snapshot-info")
+def snapshot_info():
+    """Get snapshot metadata and timing information."""
+    files = sorted(os.listdir(SNAPSHOT_FOLDER))
+    
+    total_snapshots = len(files)
+    last_snapshot_time = None
+    time_since_last = None
+    server_time = datetime.now(timezone.utc).isoformat()
+    
+    if files:
+        latest_file = files[-1]
+        # Parse timestamp from filename: snapshot_20260218_153245.json
+        try:
+            timestamp_str = latest_file.replace("snapshot_", "").replace(".json", "")
+            last_snapshot_dt = datetime.strptime(timestamp_str, "%Y%m%d_%H%M%S")
+            last_snapshot_time = last_snapshot_dt.isoformat()
+            
+            # Calculate time since last snapshot
+            now = datetime.now()
+            delta = now - last_snapshot_dt
+            minutes = int(delta.total_seconds() / 60)
+            
+            if minutes < 1:
+                time_since_last = "just now"
+            elif minutes == 1:
+                time_since_last = "1 minute ago"
+            elif minutes < 60:
+                time_since_last = f"{minutes} minutes ago"
+            else:
+                hours = minutes // 60
+                if hours == 1:
+                    time_since_last = "1 hour ago"
+                else:
+                    time_since_last = f"{hours} hours ago"
+        except Exception as e:
+            pass
+    
+    # Get scheduler info for next scheduled snapshot
+    scheduler_info = get_scheduler_info()
+    next_scheduled = scheduler_info.get("next_run")
+    
+    return {
+        "total_snapshots": total_snapshots,
+        "last_snapshot_time": last_snapshot_time,
+        "next_scheduled_snapshot": next_scheduled,
+        "time_since_last": time_since_last,
+        "server_time": server_time
+    }
+
+
+@app.post("/trigger-snapshot")
+def trigger_snapshot():
+    """Manually trigger a snapshot creation."""
+    try:
+        success = create_snapshot()
+        
+        if success:
+            # Get the latest snapshot filename
+            files = sorted(os.listdir(SNAPSHOT_FOLDER))
+            filename = files[-1] if files else None
+            
+            return {
+                "status": "success",
+                "snapshot_created": True,
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "filename": filename
+            }
+        else:
+            raise HTTPException(status_code=500, detail="Failed to create snapshot")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error creating snapshot: {str(e)}")
+
+
+@app.get("/scheduler-status")
+def scheduler_status():
+    """Get scheduler status and configuration."""
+    return get_scheduler_info()
+
