@@ -15,7 +15,8 @@ ENV/
 .env
 
 # Snapshot data (runtime generated)
-snapshots/
+snapshots/*
+!snapshots/.gitkeep
 
 # IDE
 .vscode/
