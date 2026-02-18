@@ -4,6 +4,8 @@ import SystemStats from "./components/SystemStats";
 import AlertsCenter from "./components/AlertsCenter";
 import ProcessTableEnhanced from "./components/ProcessTableEnhanced";
 
+const SNAPSHOT_ERROR_MESSAGE = "Need at least 2 snapshots";
+
 function App() {
   const [drift, setDrift] = useState(null);
   const [serverTime, setServerTime] = useState("");
@@ -91,7 +93,7 @@ function App() {
   const color = risk === "LOW" ? "#00ff88" : risk === "MEDIUM" ? "#ffaa00" : "#ff4444";
 
   // Handle "Need at least 2 snapshots" error
-  const showSnapshotError = drift?.error === "Need at least 2 snapshots";
+  const showSnapshotError = drift?.error === SNAPSHOT_ERROR_MESSAGE;
 
   return (
     <div style={styles.page}>

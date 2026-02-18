@@ -19,6 +19,7 @@ logger = logging.getLogger(__name__)
 SNAPSHOT_INTERVAL = int(os.getenv("SNAPSHOT_INTERVAL", "5"))
 TIMEZONE = os.getenv("TIMEZONE", "UTC")
 AUTO_SNAPSHOT_ENABLED = os.getenv("AUTO_SNAPSHOT_ENABLED", "true").lower() == "true"
+MAX_SNAPSHOTS = int(os.getenv("MAX_SNAPSHOTS", "1000"))
 
 # Global scheduler instance
 scheduler = None
@@ -29,7 +30,7 @@ def create_snapshot():
     try:
         logger.info("Creating scheduled snapshot...")
         system_state = collect_system_state()
-        save_snapshot(system_state)
+        save_snapshot(system_state, max_snapshots=MAX_SNAPSHOTS)
         logger.info("Scheduled snapshot created successfully")
         return True
     except Exception as e:
