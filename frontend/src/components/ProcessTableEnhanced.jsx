@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, Fragment } from "react";
 
 function ProcessTableEnhanced({ processes }) {
   const [sortBy, setSortBy] = useState("cpu_percent");
@@ -80,9 +80,8 @@ function ProcessTableEnhanced({ processes }) {
           </thead>
           <tbody>
             {topProcesses.map((proc) => (
-              <>
+              <Fragment key={proc.pid}>
                 <tr
-                  key={proc.pid}
                   style={{
                     ...styles.tr,
                     background: expandedPid === proc.pid ? "#1c2128" : "#161b22",
@@ -103,7 +102,7 @@ function ProcessTableEnhanced({ processes }) {
                   </td>
                 </tr>
                 {expandedPid === proc.pid && (
-                  <tr key={`${proc.pid}-expanded`} style={styles.expandedRow}>
+                  <tr style={styles.expandedRow}>
                     <td colSpan="5" style={styles.expandedContent}>
                       <div style={styles.details}>
                         <div><strong>User:</strong> {proc.user}</div>
@@ -114,7 +113,7 @@ function ProcessTableEnhanced({ processes }) {
                     </td>
                   </tr>
                 )}
-              </>
+              </Fragment>
             ))}
           </tbody>
         </table>

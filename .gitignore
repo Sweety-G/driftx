@@ -7,10 +7,6 @@ __pycache__/
 dist/
 build/
 
-# Environment
-.env
-*.env
-
 # Snapshots
 snapshots/*.json
 
