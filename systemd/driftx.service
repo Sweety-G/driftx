@@ -21,6 +21,8 @@ PrivateTmp=true
 ProtectSystem=strict
 ProtectHome=true
 ReadWritePaths=/opt/driftx/backend/snapshots
+RuntimeDirectory=driftx
+LogsDirectory=driftx
 
 [Install]
 WantedBy=multi-user.target

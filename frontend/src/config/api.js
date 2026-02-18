@@ -40,16 +40,16 @@ export const buildApiUrl = (endpoint) => {
 
 // Export individual API endpoints for convenience
 export const API_ENDPOINTS = {
-  HOME: buildApiUrl('/'),
-  DRIFT: buildApiUrl('/drift'),
-  TIMELINE: buildApiUrl('/timeline'),
-  SNAPSHOT_INFO: buildApiUrl('/snapshot-info'),
-  ALERTS: buildApiUrl('/alerts'),
-  RESOURCE_ANALYSIS: buildApiUrl('/resource-analysis'),
-  CURRENT_PROCESSES: buildApiUrl('/current-processes'),
-  TRIGGER_SNAPSHOT: buildApiUrl('/trigger-snapshot'),
-  SCHEDULER_STATUS: buildApiUrl('/scheduler-status'),
-  PROCESS_DETAILS: (pid) => buildApiUrl(`/process-details/${pid}`),
+  HOME: buildApiUrl(''),
+  DRIFT: buildApiUrl('drift'),
+  TIMELINE: buildApiUrl('timeline'),
+  SNAPSHOT_INFO: buildApiUrl('snapshot-info'),
+  ALERTS: buildApiUrl('alerts'),
+  RESOURCE_ANALYSIS: buildApiUrl('resource-analysis'),
+  CURRENT_PROCESSES: buildApiUrl('current-processes'),
+  TRIGGER_SNAPSHOT: buildApiUrl('trigger-snapshot'),
+  SCHEDULER_STATUS: buildApiUrl('scheduler-status'),
+  PROCESS_DETAILS: (pid) => buildApiUrl(`process-details/${pid}`),
 };
 
 export default API_BASE_URL;
