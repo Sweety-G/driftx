@@ -125,7 +125,7 @@ function ProcessTableEnhanced({ processes }) {
 const styles = {
   container: {
     background: "#0d1117",
-    padding: "20px",
+    padding: "clamp(16px, 3vw, 20px)",
     borderRadius: "12px",
     border: "1px solid #30363d",
   },
@@ -134,14 +134,17 @@ const styles = {
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: "15px",
+    flexWrap: "wrap",
+    gap: "10px",
   },
   title: {
-    fontSize: "18px",
+    fontSize: "clamp(16px, 2vw, 18px)",
     margin: 0,
     color: "#58a6ff",
+    fontFamily: "'Ubuntu Sans', system-ui, -apple-system, sans-serif",
   },
   info: {
-    fontSize: "12px",
+    fontSize: "clamp(11px, 1.5vw, 12px)",
     color: "#8b949e",
   },
   search: {
@@ -152,33 +155,37 @@ const styles = {
     border: "1px solid #30363d",
     borderRadius: "6px",
     color: "#c9d1d9",
-    fontSize: "14px",
+    fontSize: "clamp(13px, 1.8vw, 14px)",
+    fontFamily: "'Overlock', system-ui, sans-serif",
   },
   tableContainer: {
     overflowX: "auto",
+    width: "100%",
   },
   table: {
     width: "100%",
+    minWidth: "600px",
     borderCollapse: "collapse",
   },
   th: {
-    padding: "10px",
+    padding: "clamp(8px, 1.5vw, 10px)",
     textAlign: "left",
     background: "#161b22",
     color: "#8b949e",
-    fontSize: "12px",
+    fontSize: "clamp(11px, 1.5vw, 12px)",
     fontWeight: "bold",
     cursor: "pointer",
     userSelect: "none",
     borderBottom: "2px solid #30363d",
+    fontFamily: "'Ubuntu Sans', system-ui, -apple-system, sans-serif",
   },
   tr: {
     cursor: "pointer",
     transition: "background 0.2s",
   },
   td: {
-    padding: "10px",
-    fontSize: "13px",
+    padding: "clamp(8px, 1.5vw, 10px)",
+    fontSize: "clamp(12px, 1.6vw, 13px)",
     color: "#c9d1d9",
     borderBottom: "1px solid #21262d",
   },
@@ -196,9 +203,9 @@ const styles = {
   },
   details: {
     display: "grid",
-    gridTemplateColumns: "repeat(2, 1fr)",
+    gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
     gap: "10px",
-    fontSize: "12px",
+    fontSize: "clamp(11px, 1.5vw, 12px)",
     color: "#8b949e",
   },
 };

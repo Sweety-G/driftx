@@ -79,7 +79,7 @@ const styles = {
     boxShadow: "0 8px 32px rgba(0, 0, 0, 0.3)",
   },
   header: {
-    padding: "15px 20px",
+    padding: "clamp(12px, 2.5vw, 15px) clamp(16px, 3vw, 20px)",
     cursor: "pointer",
     display: "flex",
     justifyContent: "space-between",
@@ -87,16 +87,17 @@ const styles = {
     userSelect: "none",
   },
   title: {
-    fontSize: "18px",
+    fontSize: "clamp(16px, 2vw, 18px)",
     margin: 0,
     color: "#58a6ff",
+    fontFamily: "'Ubuntu Sans', system-ui, -apple-system, sans-serif",
   },
   toggle: {
     color: "#8b949e",
     fontSize: "14px",
   },
   content: {
-    padding: "0 20px 20px",
+    padding: "0 clamp(16px, 3vw, 20px) clamp(16px, 3vw, 20px)",
   },
   noAlerts: {
     padding: "20px",
@@ -122,13 +123,14 @@ const styles = {
     flex: 1,
   },
   alertTitle: {
-    fontSize: "14px",
+    fontSize: "clamp(13px, 1.8vw, 14px)",
     fontWeight: "bold",
     marginBottom: "5px",
     color: "#c9d1d9",
+    fontFamily: "'Ubuntu Sans', system-ui, -apple-system, sans-serif",
   },
   alertMessage: {
-    fontSize: "12px",
+    fontSize: "clamp(11px, 1.5vw, 12px)",
     color: "#8b949e",
   },
   dismissButton: {
