@@ -22,13 +22,59 @@ def collect_system_state():
         "processes": []
     }
 
-    for proc in psutil.process_iter(['pid', 'name']):
+    for proc in psutil.process_iter(['pid', 'name', 'cpu_percent', 'memory_percent', 'status', 'username', 'cmdline', 'create_time']):
         try:
+            proc_info = proc.info
+            memory_info = proc.memory_info()
+            
+            # Determine if process is high CPU or high memory
+            cpu_pct = proc_info.get('cpu_percent', 0.0) or 0.0
+            mem_pct = proc_info.get('memory_percent', 0.0) or 0.0
+            status = proc_info.get('status', 'unknown')
+            
+            # Detect alerts
+            alert = None
+            if status in ['zombie', 'defunct']:
+                alert = {
+                    "type": "zombie",
+                    "severity": "critical",
+                    "message": f"Zombie/defunct process detected",
+                    "value": None,
+                    "threshold": None
+                }
+            elif cpu_pct > 50:
+                alert = {
+                    "type": "high_cpu",
+                    "severity": "critical" if cpu_pct > 80 else "warning",
+                    "message": f"Process using {cpu_pct:.1f}% CPU",
+                    "value": cpu_pct,
+                    "threshold": 50
+                }
+            elif mem_pct > 10:
+                alert = {
+                    "type": "high_memory",
+                    "severity": "critical" if mem_pct > 20 else "warning",
+                    "message": f"Process using {mem_pct:.1f}% memory",
+                    "value": mem_pct,
+                    "threshold": 10
+                }
+            
+            cmdline = proc_info.get('cmdline')
+            command = ' '.join(cmdline) if cmdline else proc_info.get('name', '')
+            
             data["processes"].append({
-                "pid": proc.info['pid'],
-                "name": proc.info['name']
+                "pid": proc_info['pid'],
+                "name": proc_info['name'],
+                "cpu_percent": round(cpu_pct, 2),
+                "memory_percent": round(mem_pct, 2),
+                "memory_mb": round(memory_info.rss / 1024 / 1024, 2),
+                "status": status,
+                "user": proc_info.get('username', 'unknown'),
+                "command": command[:200] if command else '',  # Limit command length
+                "create_time": datetime.datetime.fromtimestamp(proc_info.get('create_time', 0)).isoformat() if proc_info.get('create_time') else None,
+                "alert": alert
             })
-        except:
+        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
             pass
 
     return data

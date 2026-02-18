@@ -1,9 +1,8 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import json
 import os
-
-
+from analyzer.process_monitor import ProcessMonitor
 
 
 app = FastAPI()
@@ -17,6 +16,7 @@ app.add_middleware(
 
 
 SNAPSHOT_FOLDER = "./snapshots"
+monitor = ProcessMonitor(SNAPSHOT_FOLDER)
 
 
 @app.get("/")
@@ -75,3 +75,77 @@ def timeline():
         })
 
     return timeline_data
+
+
+@app.get("/current-processes")
+def current_processes():
+    """Get all currently running processes with detailed information."""
+    processes = monitor.get_current_processes()
+    return {
+        "processes": processes,
+        "total": len(processes)
+    }
+
+
+@app.get("/process-details/{pid}")
+def process_details(pid: int):
+    """Get detailed information about a specific process by PID."""
+    process = monitor.get_process_by_pid(pid)
+    if not process:
+        raise HTTPException(status_code=404, detail=f"Process with PID {pid} not found")
+    return process
+
+
+@app.get("/alerts")
+def get_alerts():
+    """Get all current system alerts (stuck processes, resource hogs, etc.)."""
+    alerts = monitor.get_alerts()
+    stuck_processes = monitor.detect_stuck_processes()
+    
+    # Add stuck process alerts
+    for stuck in stuck_processes:
+        alerts.append({
+            "pid": stuck["pid"],
+            "name": stuck["name"],
+            "type": "stuck",
+            "severity": "critical",
+            "message": f"Process stuck with {stuck['avg_cpu']:.1f}% CPU (sustained high usage)",
+            "value": stuck["avg_cpu"],
+            "threshold": monitor.cpu_threshold_critical
+        })
+    
+    return {
+        "alerts": alerts,
+        "total": len(alerts)
+    }
+
+
+@app.get("/resource-analysis")
+def resource_analysis():
+    """Analyze system resources and identify problems."""
+    analysis = monitor.analyze_resource_usage()
+    stuck_processes = monitor.detect_stuck_processes()
+    
+    analysis["stuck_processes"] = stuck_processes
+    
+    # Calculate risk level
+    critical_count = (
+        len([a for a in analysis["high_cpu_processes"] if a["severity"] == "critical"]) +
+        len([a for a in analysis["high_memory_processes"] if a["severity"] == "critical"]) +
+        len(analysis["zombie_processes"]) +
+        len(stuck_processes)
+    )
+    
+    warning_count = (
+        len([a for a in analysis["high_cpu_processes"] if a["severity"] == "warning"]) +
+        len([a for a in analysis["high_memory_processes"] if a["severity"] == "warning"])
+    )
+    
+    if critical_count > 0:
+        analysis["risk_level"] = "HIGH"
+    elif warning_count > 2:
+        analysis["risk_level"] = "MEDIUM"
+    else:
+        analysis["risk_level"] = "LOW"
+    
+    return analysis
