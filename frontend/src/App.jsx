@@ -3,6 +3,7 @@ import SnapshotControl from "./components/SnapshotControl";
 import SystemStats from "./components/SystemStats";
 import AlertsCenter from "./components/AlertsCenter";
 import ProcessTableEnhanced from "./components/ProcessTableEnhanced";
+import { getApiUrl, getApiDisplayUrl } from "./config";
 
 const SNAPSHOT_ERROR_MESSAGE = "Need at least 2 snapshots";
 
@@ -15,6 +16,7 @@ function App() {
   const [alerts, setAlerts] = useState(null);
   const [resourceAnalysis, setResourceAnalysis] = useState(null);
   const [processes, setProcesses] = useState(null);
+  const [connectionError, setConnectionError] = useState(null);
 
   // Update local time every second
   useEffect(() => {
@@ -29,44 +31,84 @@ function App() {
   // Fetch data from backend
   useEffect(() => {
     const fetchData = () => {
+      // Clear previous connection errors on successful fetch attempt
+      let hasError = false;
+
       // Fetch drift data
-      fetch("http://127.0.0.1:8000/drift")
+      fetch(getApiUrl("/drift"))
         .then((res) => res.json())
-        .then((data) => setDrift(data))
-        .catch((err) => console.error("Error fetching drift:", err));
+        .then((data) => {
+          setDrift(data);
+          setConnectionError(null);
+        })
+        .catch((err) => {
+          console.error("Error fetching drift:", err);
+          hasError = true;
+          setConnectionError(`Failed to connect to backend at ${getApiDisplayUrl()}`);
+        });
 
       // Fetch timeline
-      fetch("http://127.0.0.1:8000/timeline")
+      fetch(getApiUrl("/timeline"))
         .then((res) => res.json())
         .then((data) => setTimeline(data))
-        .catch((err) => console.error("Error fetching timeline:", err));
+        .catch((err) => {
+          console.error("Error fetching timeline:", err);
+          if (!hasError) {
+            hasError = true;
+            setConnectionError(`Failed to connect to backend at ${getApiDisplayUrl()}`);
+          }
+        });
 
       // Fetch snapshot info
-      fetch("http://127.0.0.1:8000/snapshot-info")
+      fetch(getApiUrl("/snapshot-info"))
         .then((res) => res.json())
         .then((data) => {
           setSnapshotInfo(data);
           setServerTime(new Date(data.server_time).toLocaleTimeString());
         })
-        .catch((err) => console.error("Error fetching snapshot info:", err));
+        .catch((err) => {
+          console.error("Error fetching snapshot info:", err);
+          if (!hasError) {
+            hasError = true;
+            setConnectionError(`Failed to connect to backend at ${getApiDisplayUrl()}`);
+          }
+        });
 
       // Fetch alerts
-      fetch("http://127.0.0.1:8000/alerts")
+      fetch(getApiUrl("/alerts"))
         .then((res) => res.json())
         .then((data) => setAlerts(data))
-        .catch((err) => console.error("Error fetching alerts:", err));
+        .catch((err) => {
+          console.error("Error fetching alerts:", err);
+          if (!hasError) {
+            hasError = true;
+            setConnectionError(`Failed to connect to backend at ${getApiDisplayUrl()}`);
+          }
+        });
 
       // Fetch resource analysis
-      fetch("http://127.0.0.1:8000/resource-analysis")
+      fetch(getApiUrl("/resource-analysis"))
         .then((res) => res.json())
         .then((data) => setResourceAnalysis(data))
-        .catch((err) => console.error("Error fetching resource analysis:", err));
+        .catch((err) => {
+          console.error("Error fetching resource analysis:", err);
+          if (!hasError) {
+            hasError = true;
+            setConnectionError(`Failed to connect to backend at ${getApiDisplayUrl()}`);
+          }
+        });
 
       // Fetch current processes
-      fetch("http://127.0.0.1:8000/current-processes")
+      fetch(getApiUrl("/current-processes"))
         .then((res) => res.json())
         .then((data) => setProcesses(data))
-        .catch((err) => console.error("Error fetching processes:", err));
+        .catch((err) => {
+          console.error("Error fetching processes:", err);
+          if (!hasError) {
+            hasError = true;
+            setConnectionError(`Failed to connect to backend at ${getApiDisplayUrl()}`);
+          }
+        });
     };
 
     fetchData();
@@ -75,16 +117,23 @@ function App() {
   }, []);
 
   const handleTriggerSnapshot = async () => {
-    const response = await fetch("http://127.0.0.1:8000/trigger-snapshot", {
-      method: "POST",
-    });
-    if (response.ok) {
-      // Refresh data after snapshot
-      setTimeout(() => {
-        fetch("http://127.0.0.1:8000/snapshot-info")
-          .then((res) => res.json())
-          .then((data) => setSnapshotInfo(data));
-      }, 1000);
+    try {
+      const response = await fetch(getApiUrl("/trigger-snapshot"), {
+        method: "POST",
+      });
+      if (response.ok) {
+        // Refresh data after snapshot
+        setTimeout(() => {
+          fetch(getApiUrl("/snapshot-info"))
+            .then((res) => res.json())
+            .then((data) => setSnapshotInfo(data))
+            .catch((err) => console.error("Error refreshing snapshot info:", err));
+        }, 1000);
+        setConnectionError(null);
+      }
+    } catch (err) {
+      console.error("Error triggering snapshot:", err);
+      setConnectionError(`Failed to connect to backend at ${getApiDisplayUrl()}`);
     }
   };
 
@@ -118,6 +167,28 @@ function App() {
       </div>
 
       <p style={{ color: "#00ff88", margin: "10px 0" }}>● LIVE MONITORING ACTIVE</p>
+
+      {/* Connection error banner */}
+      {connectionError && (
+        <div style={styles.connectionErrorBanner}>
+          <div style={styles.errorIcon}>⚠️</div>
+          <div>
+            <div style={styles.errorTitle}>Connection Error</div>
+            <div style={styles.errorMessage}>
+              {connectionError}
+            </div>
+            <div style={styles.errorMessage}>
+              • Make sure the backend is running on port 8000
+            </div>
+            <div style={styles.errorMessage}>
+              • Check if backend and frontend are on the same network
+            </div>
+            <div style={styles.errorMessage}>
+              • Current API URL: {getApiDisplayUrl()}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Snapshot error message */}
       {showSnapshotError && (
@@ -279,6 +350,16 @@ const styles = {
     display: "flex",
     gap: "15px",
     alignItems: "center",
+  },
+  connectionErrorBanner: {
+    background: "linear-gradient(135deg, #2d1f1f, #3d2828)",
+    border: "2px solid #ff4444",
+    borderRadius: "12px",
+    padding: "20px",
+    marginTop: "20px",
+    display: "flex",
+    gap: "15px",
+    alignItems: "flex-start",
   },
   errorIcon: {
     fontSize: "36px",
