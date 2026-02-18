@@ -34,6 +34,14 @@ function App() {
   const [alerts, setAlerts] = useState(null);
   const [resourceAnalysis, setResourceAnalysis] = useState(null);
   const [processes, setProcesses] = useState(null);
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+
+  // Track window width for responsive layout
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Update local time every second
   useEffect(() => {
@@ -117,6 +125,13 @@ function App() {
   // Handle "Need at least 2 snapshots" error
   const showSnapshotError = drift?.error === SNAPSHOT_ERROR_MESSAGE;
 
+  // Responsive grid columns based on window width
+  const getMainGridColumns = () => {
+    if (windowWidth >= 1200) return "2fr 1fr";
+    if (windowWidth >= 768) return "1fr 1fr";
+    return "1fr";
+  };
+
   return (
     <div style={styles.page}>
       {/* HEADER */}
@@ -171,7 +186,7 @@ function App() {
       </div>
 
       {/* MAIN CONTENT GRID */}
-      <div style={styles.mainGrid} className="main-grid-responsive">
+      <div style={{...styles.mainGrid, gridTemplateColumns: getMainGridColumns()}}>
         {/* LEFT COLUMN */}
         <div>
           {/* Drift Detection */}

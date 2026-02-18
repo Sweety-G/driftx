@@ -35,7 +35,6 @@ def json_response(data, status_code=200):
         status_code=status_code,
         headers={
             "Cache-Control": "no-cache, no-store, must-revalidate",
-            "Pragma": "no-cache",
             "Expires": "0"
         }
     )
