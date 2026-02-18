@@ -267,10 +267,11 @@ const styles = {
     background: "linear-gradient(to bottom, #000000, #0a0c10)",
     minHeight: "100vh",
     color: "white",
-    padding: "20px",
-    fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', 'Roboto', sans-serif",
+    padding: "clamp(10px, 3vw, 20px)",
+    fontFamily: "'Overlock', system-ui, -apple-system, sans-serif",
     width: "100%",
-    margin: "0",
+    maxWidth: "100%",
+    margin: "0 auto",
     boxSizing: "border-box",
   },
   header: {
@@ -282,12 +283,13 @@ const styles = {
     gap: "15px",
   },
   logo: {
-    fontSize: "48px",
+    fontSize: "clamp(32px, 6vw, 48px)",
     color: "#00ff88",
     textShadow: "0 0 30px rgba(0, 255, 136, 0.6)",
     margin: 0,
     fontWeight: "700",
     letterSpacing: "-1px",
+    fontFamily: "'Ubuntu Sans', system-ui, -apple-system, sans-serif",
   },
   timeDisplay: {
     background: "rgba(13, 17, 23, 0.8)",
@@ -337,28 +339,29 @@ const styles = {
   },
   grid: {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
-    gap: "15px",
+    gridTemplateColumns: "repeat(auto-fit, minmax(min(240px, 100%), 1fr))",
+    gap: "clamp(10px, 2vw, 15px)",
     marginTop: "20px",
   },
   mainGrid: {
     display: "grid",
     gridTemplateColumns: "1fr",
-    gap: "20px",
+    gap: "clamp(15px, 3vw, 20px)",
     marginTop: "20px",
   },
   panel: {
     background: "rgba(13, 17, 23, 0.6)",
-    padding: "24px",
+    padding: "clamp(16px, 3vw, 24px)",
     borderRadius: "16px",
     border: "1px solid rgba(48, 54, 61, 0.5)",
     backdropFilter: "blur(20px)",
     boxShadow: "0 8px 32px rgba(0, 0, 0, 0.3)",
   },
   panelTitle: {
-    fontSize: "18px",
+    fontSize: "clamp(16px, 2vw, 18px)",
     margin: "0 0 10px 0",
     color: "#58a6ff",
+    fontFamily: "'Ubuntu Sans', system-ui, -apple-system, sans-serif",
   },
   timelineItem: {
     padding: "8px 0",
@@ -383,7 +386,7 @@ function Card({ title, value, color }) {
     <div
       style={{
         background: "rgba(13, 17, 23, 0.6)",
-        padding: "24px",
+        padding: "clamp(16px, 3vw, 24px)",
         borderRadius: "16px",
         border: `1px solid ${color}40`,
         transition: "all 0.3s ease",
@@ -400,8 +403,8 @@ function Card({ title, value, color }) {
         e.currentTarget.style.boxShadow = `0 0 20px ${color}20, 0 8px 32px rgba(0, 0, 0, 0.3)`;
       }}
     >
-      <p style={{ color: "#8b949e", margin: "0 0 12px 0", fontSize: "13px", fontWeight: "500", letterSpacing: "0.5px", textTransform: "uppercase" }}>{title}</p>
-      <h2 style={{ color, margin: 0, fontSize: "32px", fontWeight: "700" }}>{value}</h2>
+      <p style={{ color: "#8b949e", margin: "0 0 12px 0", fontSize: "clamp(11px, 1.5vw, 13px)", fontWeight: "500", letterSpacing: "0.5px", textTransform: "uppercase", fontFamily: "'Ubuntu Sans', system-ui, sans-serif" }}>{title}</p>
+      <h2 style={{ color, margin: 0, fontSize: "clamp(24px, 4vw, 32px)", fontWeight: "700", fontFamily: "'Ubuntu Sans', system-ui, sans-serif" }}>{value}</h2>
     </div>
   );
 }
@@ -411,15 +414,15 @@ function Box({ title, color, children }) {
     <div
       style={{
         background: "rgba(22, 27, 34, 0.8)",
-        padding: "18px",
+        padding: "clamp(14px, 2.5vw, 18px)",
         borderRadius: "12px",
         marginTop: "15px",
         border: `1px solid ${color}40`,
         boxShadow: `0 0 15px ${color}15`,
       }}
     >
-      <h3 style={{ color, margin: "0 0 12px 0", fontSize: "16px", fontWeight: "600" }}>{title}</h3>
-      <p style={{ color: "#c9d1d9", margin: 0, fontSize: "14px", lineHeight: "1.6" }}>{children}</p>
+      <h3 style={{ color, margin: "0 0 12px 0", fontSize: "clamp(14px, 2vw, 16px)", fontWeight: "600", fontFamily: "'Ubuntu Sans', system-ui, sans-serif" }}>{title}</h3>
+      <p style={{ color: "#c9d1d9", margin: 0, fontSize: "clamp(13px, 1.8vw, 14px)", lineHeight: "1.6" }}>{children}</p>
     </div>
   );
 }

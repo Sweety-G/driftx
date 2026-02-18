@@ -52,16 +52,17 @@ function SystemStats({ resourceAnalysis }) {
 const styles = {
   container: {
     background: "rgba(13, 17, 23, 0.6)",
-    padding: "24px",
+    padding: "clamp(16px, 3vw, 24px)",
     borderRadius: "16px",
     border: "1px solid rgba(48, 54, 61, 0.5)",
     backdropFilter: "blur(20px)",
     boxShadow: "0 8px 32px rgba(0, 0, 0, 0.3)",
   },
   title: {
-    fontSize: "18px",
+    fontSize: "clamp(16px, 2vw, 18px)",
     marginBottom: "15px",
     color: "#58a6ff",
+    fontFamily: "'Ubuntu Sans', system-ui, -apple-system, sans-serif",
   },
   statRow: {
     display: "flex",
@@ -71,13 +72,14 @@ const styles = {
     borderBottom: "1px solid #21262d",
   },
   statLabel: {
-    fontSize: "14px",
+    fontSize: "clamp(13px, 1.8vw, 14px)",
     color: "#8b949e",
   },
   statValue: {
-    fontSize: "16px",
+    fontSize: "clamp(14px, 2vw, 16px)",
     color: "#00ff88",
     fontWeight: "bold",
+    fontFamily: "'Ubuntu Sans', system-ui, -apple-system, sans-serif",
   },
   badge: {
     padding: "4px 12px",
