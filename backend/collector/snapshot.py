@@ -79,7 +79,7 @@ def collect_system_state():
 
     return data
 
-def save_snapshot(data):
+def save_snapshot(data, max_snapshots=None):
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     filename = f"{SNAPSHOT_FOLDER}/snapshot_{timestamp}.json"
 
@@ -87,6 +87,20 @@ def save_snapshot(data):
         json.dump(data, f, indent=4)
 
     print(f"Snapshot saved: {filename}")
+    
+    # Clean up old snapshots if max_snapshots is specified
+    if max_snapshots:
+        try:
+            import glob
+            snapshot_files = sorted(glob.glob(f"{SNAPSHOT_FOLDER}/snapshot_*.json"))
+            if len(snapshot_files) > max_snapshots:
+                # Remove oldest snapshots
+                files_to_remove = snapshot_files[:-max_snapshots]
+                for old_file in files_to_remove:
+                    os.remove(old_file)
+                    print(f"Removed old snapshot: {old_file}")
+        except Exception as e:
+            print(f"Error cleaning up old snapshots: {e}")
 
 if __name__ == "__main__":
     system_state = collect_system_state()
