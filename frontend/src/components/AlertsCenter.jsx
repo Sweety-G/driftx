@@ -71,10 +71,12 @@ function AlertsCenter({ alerts }) {
 
 const styles = {
   container: {
-    background: "#0d1117",
-    borderRadius: "12px",
-    border: "1px solid #30363d",
+    background: "rgba(13, 17, 23, 0.6)",
+    borderRadius: "16px",
+    border: "1px solid rgba(48, 54, 61, 0.5)",
     overflow: "hidden",
+    backdropFilter: "blur(20px)",
+    boxShadow: "0 8px 32px rgba(0, 0, 0, 0.3)",
   },
   header: {
     padding: "15px 20px",
@@ -107,11 +109,11 @@ const styles = {
     display: "flex",
     alignItems: "flex-start",
     gap: "12px",
-    padding: "12px",
-    background: "#161b22",
-    borderRadius: "8px",
+    padding: "15px",
+    background: "rgba(22, 27, 34, 0.8)",
+    borderRadius: "12px",
     marginBottom: "10px",
-    border: "1px solid #21262d",
+    border: "1px solid rgba(33, 38, 45, 0.5)",
   },
   alertIcon: {
     fontSize: "24px",
