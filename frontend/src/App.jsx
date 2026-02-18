@@ -7,6 +7,24 @@ import { API_ENDPOINTS } from "./config/api";
 
 const SNAPSHOT_ERROR_MESSAGE = "Need at least 2 snapshots";
 
+// Helper function to validate API responses
+const validateApiResponse = async (response) => {
+  // Check if response is ok
+  if (!response.ok) {
+    throw new Error(`API error: ${response.status} ${response.statusText}`);
+  }
+  
+  // Check content type
+  const contentType = response.headers.get("content-type");
+  if (!contentType || !contentType.includes("application/json")) {
+    const text = await response.text();
+    console.error("Invalid API response - expected JSON, got:", contentType, text.substring(0, 200));
+    throw new Error(`Invalid API response: Expected JSON but got ${contentType || 'unknown content type'}`);
+  }
+  
+  return response.json();
+};
+
 function App() {
   const [drift, setDrift] = useState(null);
   const [serverTime, setServerTime] = useState("");
@@ -16,6 +34,14 @@ function App() {
   const [alerts, setAlerts] = useState(null);
   const [resourceAnalysis, setResourceAnalysis] = useState(null);
   const [processes, setProcesses] = useState(null);
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+
+  // Track window width for responsive layout
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Update local time every second
   useEffect(() => {
@@ -32,19 +58,19 @@ function App() {
     const fetchData = () => {
       // Fetch drift data
       fetch(API_ENDPOINTS.DRIFT)
-        .then((res) => res.json())
+        .then(validateApiResponse)
         .then((data) => setDrift(data))
         .catch((err) => console.error("Error fetching drift:", err));
 
       // Fetch timeline
       fetch(API_ENDPOINTS.TIMELINE)
-        .then((res) => res.json())
+        .then(validateApiResponse)
         .then((data) => setTimeline(data))
         .catch((err) => console.error("Error fetching timeline:", err));
 
       // Fetch snapshot info
       fetch(API_ENDPOINTS.SNAPSHOT_INFO)
-        .then((res) => res.json())
+        .then(validateApiResponse)
         .then((data) => {
           setSnapshotInfo(data);
           setServerTime(new Date(data.server_time).toLocaleTimeString());
@@ -53,19 +79,19 @@ function App() {
 
       // Fetch alerts
       fetch(API_ENDPOINTS.ALERTS)
-        .then((res) => res.json())
+        .then(validateApiResponse)
         .then((data) => setAlerts(data))
         .catch((err) => console.error("Error fetching alerts:", err));
 
       // Fetch resource analysis
       fetch(API_ENDPOINTS.RESOURCE_ANALYSIS)
-        .then((res) => res.json())
+        .then(validateApiResponse)
         .then((data) => setResourceAnalysis(data))
         .catch((err) => console.error("Error fetching resource analysis:", err));
 
       // Fetch current processes
       fetch(API_ENDPOINTS.CURRENT_PROCESSES)
-        .then((res) => res.json())
+        .then(validateApiResponse)
         .then((data) => setProcesses(data))
         .catch((err) => console.error("Error fetching processes:", err));
     };
@@ -76,16 +102,19 @@ function App() {
   }, []);
 
   const handleTriggerSnapshot = async () => {
-    const response = await fetch(API_ENDPOINTS.TRIGGER_SNAPSHOT, {
-      method: "POST",
-    });
-    if (response.ok) {
+    try {
+      const response = await fetch(API_ENDPOINTS.TRIGGER_SNAPSHOT, {
+        method: "POST",
+      });
+      await validateApiResponse(response);
       // Refresh data after snapshot
       setTimeout(() => {
         fetch(API_ENDPOINTS.SNAPSHOT_INFO)
-          .then((res) => res.json())
+          .then(validateApiResponse)
           .then((data) => setSnapshotInfo(data));
       }, 1000);
+    } catch (err) {
+      console.error("Error triggering snapshot:", err);
     }
   };
 
@@ -95,6 +124,13 @@ function App() {
 
   // Handle "Need at least 2 snapshots" error
   const showSnapshotError = drift?.error === SNAPSHOT_ERROR_MESSAGE;
+
+  // Responsive grid columns based on window width
+  const getMainGridColumns = () => {
+    if (windowWidth >= 1200) return "2fr 1fr";
+    if (windowWidth >= 768) return "1fr 1fr";
+    return "1fr";
+  };
 
   return (
     <div style={styles.page}>
@@ -150,7 +186,7 @@ function App() {
       </div>
 
       {/* MAIN CONTENT GRID */}
-      <div style={styles.mainGrid}>
+      <div style={{...styles.mainGrid, gridTemplateColumns: getMainGridColumns()}}>
         {/* LEFT COLUMN */}
         <div>
           {/* Drift Detection */}
@@ -233,8 +269,8 @@ const styles = {
     color: "white",
     padding: "25px",
     fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif",
-    maxWidth: "1600px",
-    margin: "0 auto",
+    width: "100%",
+    margin: "0",
   },
   header: {
     display: "flex",
@@ -302,7 +338,7 @@ const styles = {
   },
   mainGrid: {
     display: "grid",
-    gridTemplateColumns: "2fr 1fr",
+    gridTemplateColumns: "1fr",
     gap: "20px",
     marginTop: "20px",
   },
