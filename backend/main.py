@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
 import json
 import os
@@ -27,13 +28,26 @@ app.add_middleware(
 )
 
 
+# Helper to create JSON responses with no-cache headers
+def json_response(data, status_code=200):
+    return JSONResponse(
+        content=data,
+        status_code=status_code,
+        headers={
+            "Cache-Control": "no-cache, no-store, must-revalidate",
+            "Pragma": "no-cache",
+            "Expires": "0"
+        }
+    )
+
+
 SNAPSHOT_FOLDER = "./snapshots"
 monitor = ProcessMonitor(SNAPSHOT_FOLDER)
 
 
 @app.get("/")
 def home():
-    return {"message": "DriftX Backend Running"}
+    return json_response({"message": "DriftX Backend Running"})
 
 
 @app.get("/latest-snapshot")
@@ -41,14 +55,14 @@ def latest_snapshot():
     files = sorted(os.listdir(SNAPSHOT_FOLDER))
 
     if not files:
-        return {"error": "No snapshots found"}
+        return json_response({"error": "No snapshots found"})
 
     latest = files[-1]
 
     with open(f"{SNAPSHOT_FOLDER}/{latest}") as f:
         data = json.load(f)
 
-    return data
+    return json_response(data)
 
 
 @app.get("/drift")
@@ -56,7 +70,7 @@ def drift_result():
     files = sorted(os.listdir(SNAPSHOT_FOLDER))
 
     if len(files) < 2:
-        return {"error": "Need at least 2 snapshots"}
+        return json_response({"error": "Need at least 2 snapshots"})
 
     old_file = files[-2]
     new_file = files[-1]
@@ -70,10 +84,10 @@ def drift_result():
     old_proc = {p["name"] for p in old_data["processes"]}
     new_proc = {p["name"] for p in new_data["processes"]}
 
-    return {
+    return json_response({
         "added": list(new_proc - old_proc),
         "removed": list(old_proc - new_proc)
-    }
+    })
 @app.get("/timeline")
 def timeline():
     files = sorted(os.listdir(SNAPSHOT_FOLDER))
@@ -86,17 +100,17 @@ def timeline():
             "time": f.replace("snapshot_", "").replace(".json", "")
         })
 
-    return timeline_data
+    return json_response(timeline_data)
 
 
 @app.get("/current-processes")
 def current_processes():
     """Get all currently running processes with detailed information."""
     processes = monitor.get_current_processes()
-    return {
+    return json_response({
         "processes": processes,
         "total": len(processes)
-    }
+    })
 
 
 @app.get("/process-details/{pid}")
@@ -105,7 +119,7 @@ def process_details(pid: int):
     process = monitor.get_process_by_pid(pid)
     if not process:
         raise HTTPException(status_code=404, detail=f"Process with PID {pid} not found")
-    return process
+    return json_response(process)
 
 
 @app.get("/alerts")
@@ -126,10 +140,10 @@ def get_alerts():
             "threshold": monitor.cpu_threshold_critical
         })
     
-    return {
+    return json_response({
         "alerts": alerts,
         "total": len(alerts)
-    }
+    })
 
 
 @app.get("/resource-analysis")
@@ -160,7 +174,7 @@ def resource_analysis():
     else:
         analysis["risk_level"] = "LOW"
     
-    return analysis
+    return json_response(analysis)
 
 
 @app.get("/snapshot-info")
@@ -205,13 +219,13 @@ def snapshot_info():
     scheduler_info = get_scheduler_info()
     next_scheduled = scheduler_info.get("next_run")
     
-    return {
+    return json_response({
         "total_snapshots": total_snapshots,
         "last_snapshot_time": last_snapshot_time,
         "next_scheduled_snapshot": next_scheduled,
         "time_since_last": time_since_last,
         "server_time": server_time
-    }
+    })
 
 
 @app.post("/trigger-snapshot")
@@ -225,12 +239,12 @@ def trigger_snapshot():
             files = sorted(os.listdir(SNAPSHOT_FOLDER))
             filename = files[-1] if files else None
             
-            return {
+            return json_response({
                 "status": "success",
                 "snapshot_created": True,
                 "timestamp": datetime.now(timezone.utc).isoformat(),
                 "filename": filename
-            }
+            })
         else:
             raise HTTPException(status_code=500, detail="Failed to create snapshot")
     except Exception as e:
@@ -240,5 +254,5 @@ def trigger_snapshot():
 @app.get("/scheduler-status")
 def scheduler_status():
     """Get scheduler status and configuration."""
-    return get_scheduler_info()
+    return json_response(get_scheduler_info())
 

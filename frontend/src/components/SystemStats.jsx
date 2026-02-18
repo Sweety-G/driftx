@@ -1,6 +1,4 @@
 function SystemStats({ resourceAnalysis }) {
-  const cpuPercent = resourceAnalysis?.high_cpu_processes?.[0]?.cpu_percent || 0;
-  const memoryPercent = resourceAnalysis?.high_memory_processes?.[0]?.memory_percent || 0;
   const riskLevel = resourceAnalysis?.risk_level || "LOW";
 
   const getRiskColor = (level) => {

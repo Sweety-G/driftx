@@ -71,3 +71,16 @@ button:focus-visible {
   50% { text-shadow: 0 0 20px #00ff88; }
   100% { text-shadow: 0 0 5px #00ff88; }
 }
+
+/* Responsive media queries for DriftX dashboard */
+@media (min-width: 768px) {
+  .main-grid-responsive {
+    grid-template-columns: 1fr 1fr !important;
+  }
+}
+
+@media (min-width: 1200px) {
+  .main-grid-responsive {
+    grid-template-columns: 2fr 1fr !important;
+  }
+}
