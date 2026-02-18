@@ -1,22 +1,44 @@
 import { useEffect, useState } from "react";
 
+// Use environment variable for API URL, fallback to localhost
+const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
+
 function App() {
   const [drift, setDrift] = useState(null);
   const [time, setTime] = useState("");
   const [timeline, setTimeline] = useState([]);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchData = () => {
-      fetch("http://127.0.0.1:8000/drift")
-        .then((res) => res.json())
+      fetch(`${API_URL}/drift`)
+        .then((res) => {
+          if (!res.ok) {
+            throw new Error(`HTTP error! status: ${res.status}`);
+          }
+          return res.json();
+        })
         .then((data) => {
           setDrift(data);
           setTime(new Date().toLocaleTimeString());
+          setError(null); // Clear error on success
+        })
+        .catch((err) => {
+          console.error("Error fetching drift data:", err);
+          setError("Failed to fetch drift data. Make sure the backend is running.");
         });
 
-      fetch("http://127.0.0.1:8000/timeline")
-        .then((res) => res.json())
-        .then((data) => setTimeline(data));
+      fetch(`${API_URL}/timeline`)
+        .then((res) => {
+          if (!res.ok) {
+            throw new Error(`HTTP error! status: ${res.status}`);
+          }
+          return res.json();
+        })
+        .then((data) => setTimeline(data))
+        .catch((err) => {
+          console.error("Error fetching timeline data:", err);
+        });
     };
 
     fetchData();
@@ -48,9 +70,15 @@ function App() {
         Lightweight Forensic Change Intelligence Dashboard
       </p>
 
-      <p style={{ color: "#00ff88" }}>
-        ● LIVE MONITORING ACTIVE
-      </p>
+      {error ? (
+        <p style={{ color: "#ff4444" }}>
+          ● {error}
+        </p>
+      ) : (
+        <p style={{ color: "#00ff88" }}>
+          ● LIVE MONITORING ACTIVE
+        </p>
+      )}
 
       {/* OVERVIEW */}
       <div style={styles.grid}>

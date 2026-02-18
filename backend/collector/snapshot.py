@@ -4,13 +4,20 @@ import datetime
 import subprocess
 import psutil
 
-SNAPSHOT_FOLDER = "../snapshots"
+# Use absolute path based on script location
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+SNAPSHOT_FOLDER = os.path.join(os.path.dirname(SCRIPT_DIR), "snapshots")
 
 os.makedirs(SNAPSHOT_FOLDER, exist_ok=True)
 
 def run_command(cmd):
-    result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
-    return result.stdout.strip()
+    try:
+        result = subprocess.run(cmd, shell=True, capture_output=True, text=True, timeout=5)
+        return result.stdout.strip()
+    except subprocess.TimeoutExpired:
+        return "Command timeout"
+    except Exception as e:
+        return f"Error: {str(e)}"
 
 def collect_system_state():
     data = {
@@ -28,19 +35,23 @@ def collect_system_state():
                 "pid": proc.info['pid'],
                 "name": proc.info['name']
             })
-        except:
+        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+            # Skip processes that no longer exist or we don't have permission to access
             pass
 
     return data
 
 def save_snapshot(data):
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-    filename = f"{SNAPSHOT_FOLDER}/snapshot_{timestamp}.json"
+    filename = os.path.join(SNAPSHOT_FOLDER, f"snapshot_{timestamp}.json")
 
-    with open(filename, "w") as f:
-        json.dump(data, f, indent=4)
-
-    print(f"Snapshot saved: {filename}")
+    try:
+        with open(filename, "w") as f:
+            json.dump(data, f, indent=4)
+        print(f"Snapshot saved: {filename}")
+    except (IOError, OSError) as e:
+        print(f"Error saving snapshot: {e}")
+        raise
 
 if __name__ == "__main__":
     system_state = collect_system_state()
